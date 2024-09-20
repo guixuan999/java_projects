@@ -1,0 +1,2 @@
+Main-Class: top.cypherx.demo.MyApp
+Class-Path: lib/jSerialComm-2.11.0.jar
