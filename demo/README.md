@@ -2,7 +2,7 @@
 
 ## compile
 ```powershell
-javac -d out -cp "lib/jSerialComm-2.11.0.jar" top\cypherx\demo\*.java top\cypherx\uart\*.java 
+javac -d out -cp "lib/*" top\cypherx\demo\*.java top\cypherx\uart\*.java top\cypherx\tpl\*.java
 ```
 
 ## make jar
@@ -12,9 +12,9 @@ jar cfm MyApp.jar manifest.txt -C out .
 
 ## run
 ```powershell
-java -jar MyApp.jar
+java -jar MyApp.jar COM4
 ```
 or run class file directly
 ```powershell
-java -cp "out;lib/jSerialComm-2.11.0.jar" top.cypherx.demo.MyApp
+java -cp "out;lib/*" top.cypherx.demo.MyApp COM4
 ```
