@@ -5,8 +5,6 @@ import com.fazecast.jSerialComm.SerialPort;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Formatter;
-import java.nio.charset.StandardCharsets;
-
 
 public class MyApp {
 	public static void main(String[] args) {
@@ -24,7 +22,7 @@ public class MyApp {
             return;
         }
 
-		String portName = args[0]; // Windows上的串口名称，如COM3
+		String portName = args[0]; // Serial Port Name on windows looks like "COM3"
         int baudRate = 115200;
 
         var readerwriter = new SerialReaderWriter(portName, baudRate);
@@ -32,7 +30,7 @@ public class MyApp {
             System.out.printf("read timeout: %dms\n", readerwriter.getReadTimeout());
             System.out.printf("write timeout: %dms\n", readerwriter.getWriteTimeout());
             try {
-            readerwriter.write("你好，串口！".getBytes("utf-8"));
+            readerwriter.write("Hello Serial!".getBytes("utf-8"));
             } catch(Exception e) {
 
             }   
@@ -40,7 +38,7 @@ public class MyApp {
             System.exit(-1);
         }
 
-        // 在独立线程中读取消息
+        // read serial by independent thread
         new Thread(() -> {
             while(true) {
                 var buffer = new byte[100];

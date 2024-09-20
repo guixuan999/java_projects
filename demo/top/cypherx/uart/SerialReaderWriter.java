@@ -19,19 +19,19 @@ public class SerialReaderWriter {
 
     public boolean openPort() {
         if(serialPort.openPort()) {
-            System.out.println("串口打开成功：" + serialPort.getSystemPortName());
+            System.out.println("Port opened: " + serialPort.getSystemPortName());
             return true;
         } else {
-            System.out.println("无法打开串口：" + serialPort.getSystemPortName());
+            System.out.println("Unable to open port: " + serialPort.getSystemPortName());
             return false;
         }
     }
 
     public void closePort() {
         if(serialPort.closePort()) {
-            System.out.println("串口关闭成功：" + serialPort.getSystemPortName());
+            System.out.println("Port closed: " + serialPort.getSystemPortName());
         } else {
-            System.out.println("无法关闭串口：" + serialPort.getSystemPortName());
+            System.out.println("Unable to close port: " + serialPort.getSystemPortName());
         }
     }
 

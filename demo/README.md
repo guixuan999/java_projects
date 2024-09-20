@@ -1,4 +1,4 @@
-# 不用构建工具
+# No Building Tool Used
 
 ## compile
 ```powershell
@@ -14,7 +14,7 @@ jar cfm MyApp.jar manifest.txt -C out .
 ```powershell
 java -jar MyApp.jar
 ```
-或者直接运行class文件
+or run class file directly
 ```powershell
 java -cp "out;lib/jSerialComm-2.11.0.jar" top.cypherx.demo.MyApp
 ```
