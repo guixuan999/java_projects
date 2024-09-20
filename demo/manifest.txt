@@ -1,2 +1,3 @@
+Manifest-Version: 1.0
 Main-Class: top.cypherx.demo.MyApp
-Class-Path: lib/jSerialComm-2.11.0.jar
+Class-Path: lib/jSerialComm-2.11.0.jar lib/jackson-core-2.17.2.jar lib/jackson-databind-2.17.2.jar lib/jackson-annotations-2.17.2.jar lib/commons-lang3-3.17.0.jar lib/commons-codec-1.17.1.jar

@@ -1,0 +1,10 @@
+{
+    "cmd": 16,
+    "shortaddr": 22,
+    "frameseq": 1,
+    "start": 1,
+    "stop": 1,
+    "datalen": 10,
+    "data": [1, 2, 3, 4, 5, 6, 7, 8, 9, 0],
+    "crc": 1
+}
