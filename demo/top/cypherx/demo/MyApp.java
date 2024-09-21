@@ -16,7 +16,8 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.commons.codec.binary.Hex;
-
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class MyApp {
     private static Map<String, Object> templates;
@@ -52,11 +53,11 @@ public class MyApp {
         if(readerwriter.openPort()) {
             System.out.printf("read timeout: %dms\n", readerwriter.getReadTimeout());
             System.out.printf("write timeout: %dms\n", readerwriter.getWriteTimeout());
-            try {
-                readerwriter.write("Hello Serial!".getBytes("utf-8"));
-            } catch(Exception e) {
+            // try {
+            //     readerwriter.write("Hello Serial!".getBytes("utf-8"));
+            // } catch(Exception e) {
 
-            }   
+            // }   
         } else {
             System.exit(-1);
         }
@@ -67,40 +68,19 @@ public class MyApp {
                 var buffer = new byte[100];
                 int nread = readerwriter.read(buffer);
                 if(nread > 0) {
-                    String hexstr = bytesToHex(buffer, nread);
-                    System.out.printf("\b\bread %d bytes: %s\n> ", nread, hexstr);
-                    //System.out.println(new String(buffer, 0, nread, StandardCharsets.UTF_8));
+                    System.out.printf("\b\brecv: %s\n> ", bytesToHex(buffer, nread));
                 }
             }
         }).start();
-    
+         
+        templates = generateTemplates(new String[] {"down", "query"});
+        
         Console console = System.console();
         if(console == null) {
             System.out.println("Unable to open console!");
             System.exit(-1);
         }
-        var objectMapper = new ObjectMapper();
-        templates = generateTemplates(new String[] {"down", "query"});
-        
-        //System.out.printf("tpl_query.devid = %d\n", obj.getDevid());
-        // System.out.printf("tpl_query.frameseq = %d\n", tpl_query.getFrameseq());
-        // System.out.printf("tpl_query.nonce = %d\n", tpl_query.getNonce());
-        // System.out.printf("tpl_query.gwtoken = %d\n", tpl_query.getGwtoken());
-        // System.out.printf("tpl_query.key = %d\n", tpl_query.getKey());
-        // System.out.printf("tpl_query.q = %d\n",tpl_query.getQ());
-        // System.out.printf("tpl_query.crc = %d\n", tpl_query.getCrc());
 
-            // if(hasField(tpl_query, "devid")) {
-            //     try {
-            //         setFieldValue(tpl_query, "devid", 12345);
-            //     } catch (Exception e) {
-            //         e.printStackTrace();
-            //     }
-            //     System.out.printf("after set: tpl_query.devid = %d\n", tpl_query.getDevid());
-            // }
-            
-       
-        // don't quit
         while(true) {
             String cmd = console.readLine("> ");
             var result = parseCommand(cmd);
@@ -110,22 +90,45 @@ public class MyApp {
             }
             boolean has_crc = result.getMiddle();
             Object packet = result.getRight();
-            System.out.printf("has_crc = %b\n", has_crc);
-            Class<?> clazz = packet.getClass();
-            if(clazz == Query.class) {
-                Query query =  Query.class.cast(packet);
-                System.out.printf("query.cmd = %d\n", query.getCmd());
-                System.out.printf("query.devid = %d\n", query.getDevid());  
-                System.out.printf("query.frameseq = %d\n", query.getFrameseq());
-                System.out.printf("query.nonce = %d\n", query.getNonce());
-                System.out.printf("query.gwtoken = %d\n", query.getGwtoken());
-                System.out.printf("query.key = %d\n", query.getKey());
-                System.out.printf("query.q = %d\n",query.getQ());
-                System.out.printf("query.crc = %d\n", query.getCrc());
+            byte[] frame_bytes = generate(packet, has_crc);
+            try {
+                readerwriter.write(frame_bytes);
+                System.out.printf("sent: %s\n", bytesToHex(frame_bytes, frame_bytes.length));
+            } catch(Exception e) {
+                e.printStackTrace();
             }
 
         }
 	}
+
+    private static byte[] generate(Object frame, boolean has_crc) {
+        Class<?> clazz = frame.getClass();
+        if(clazz == Query.class) {
+            Query query =  Query.class.cast(frame);
+            byte[] frame_bytes = new byte[20];
+            ByteBuffer bb =ByteBuffer.wrap(frame_bytes);
+            bb.order(ByteOrder.BIG_ENDIAN);
+
+            bb.put((byte)(query.getCmd() & 0xFF));
+            bb.putInt((int) query.getDevid());
+            bb.put((byte)(query.getFrameseq() & 0xFF));
+            bb.putShort((short)query.getNonce());
+            bb.putInt((int) query.getGwtoken());
+            bb.putInt((int) query.getKey());
+            bb.putShort((short)query.getQ());
+
+            if(has_crc) {
+                bb.putShort((short)query.getCrc());
+            } else {
+                // calculate CRC16
+                bb.putShort((short)calculateCRC16(frame_bytes, 0, frame_bytes.length - 2));
+            }
+            
+            return frame_bytes;
+
+        }
+        return null;
+    }
 
     public static Triple<Boolean, Boolean, Object> parseCommand(String cmd) {
         cmd = cmd.trim();
@@ -139,8 +142,6 @@ public class MyApp {
 
         Object tpl = templates.get(tokens[1]);
         Object tpl_copy = invoke_with_no_params(tpl, "copy");
-
-        setFieldValue(tpl_copy, "devid", 1234);
 
         boolean has_seq = false;
         boolean has_crc = false;
@@ -289,5 +290,24 @@ public class MyApp {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static int calculateCRC16(byte[] data, int start, int length) {
+        final int POLYNOMIAL = 0x18005; // x^16+x^15+x^2+1
+        int crc = 0xFFFF; // initial value
+        for(int i = start; i < start + length; i++) {
+            byte b = data[i];
+
+            crc ^= (b << 8);
+            for (int j = 0; j < 8; j++) {
+                if ((crc & 0x8000) == 0x8000) {
+                    crc = (crc << 1) ^ POLYNOMIAL;
+                } else {
+                    crc <<= 1;
+                }
+                crc &= 0xFFFF;
+            }
+        }
+        return crc;
     }
 }
