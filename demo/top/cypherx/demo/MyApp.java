@@ -4,6 +4,8 @@ import top.cypherx.uart.SerialReaderWriter;
 import com.fazecast.jSerialComm.SerialPort;
 import top.cypherx.tpl.Down;
 import top.cypherx.tpl.Query;
+import top.cypherx.tpl.Regaccept;
+import top.cypherx.tpl.Requirereg;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +20,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.apache.commons.codec.binary.Hex;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Arrays;
 
 public class MyApp {
     private static Map<String, Object> templates;
@@ -73,7 +76,7 @@ public class MyApp {
             }
         }).start();
          
-        templates = generateTemplates(new String[] {"down", "query"});
+        templates = generateTemplates(new String[] {"down", "query", "regaccept", "requirereg"});
         
         Console console = System.console();
         if(console == null) {
@@ -116,7 +119,6 @@ public class MyApp {
             bb.putInt((int) query.getGwtoken());
             bb.putInt((int) query.getKey());
             bb.putShort((short)query.getQ());
-
             if(has_crc) {
                 bb.putShort((short)query.getCrc());
             } else {
@@ -126,6 +128,80 @@ public class MyApp {
             
             return frame_bytes;
 
+        } else if(clazz == Regaccept.class) {
+            Regaccept regaccept =  Regaccept.class.cast(frame);
+            byte[] frame_bytes = new byte[10];
+            ByteBuffer bb =ByteBuffer.wrap(frame_bytes);
+            bb.order(ByteOrder.BIG_ENDIAN);
+
+            bb.put((byte)(regaccept.getCmd() & 0xFF));
+            bb.putInt((int) regaccept.getDevid());
+            bb.put((byte)(regaccept.getFrameseq() & 0xFF));
+            bb.putShort((short)regaccept.getShortaddr());
+            if(has_crc) {
+                bb.putShort((short)regaccept.getCrc());
+            } else {
+                byte[] for_crc = Arrays.copyOf(frame_bytes, 8 + 4);
+                ByteBuffer bb_for_gwtoken= ByteBuffer.wrap(for_crc, 8, 4);
+                bb_for_gwtoken.order(ByteOrder.BIG_ENDIAN);
+                bb_for_gwtoken.putInt((int)gateway_token);
+
+                bb.putShort((short)calculateCRC16(for_crc, 0, for_crc.length));
+            }
+            return frame_bytes;
+        } else if(clazz == Requirereg.class) {
+            Requirereg requirereg =  Requirereg.class.cast(frame);
+            byte[] frame_bytes = new byte[18];
+            ByteBuffer bb =ByteBuffer.wrap(frame_bytes);
+            bb.order(ByteOrder.BIG_ENDIAN);
+
+            bb.put((byte)(requirereg.getCmd() & 0xFF));
+            bb.putShort((short) requirereg.getShortaddr());
+            bb.put((byte)(requirereg.getFrameseq() & 0xFF));
+            bb.putShort((short)requirereg.getNonce());
+            bb.putInt((int) requirereg.getGwtoken());
+            bb.putInt((int) requirereg.getKey());
+            bb.putShort((short)requirereg.getQ());
+            if(has_crc) {
+                bb.putShort((short)requirereg.getCrc());
+            } else {
+                byte[] for_crc = Arrays.copyOf(frame_bytes, 16 + 4);
+                ByteBuffer bb_for_gwtoken= ByteBuffer.wrap(for_crc, 16, 4);
+                bb_for_gwtoken.order(ByteOrder.BIG_ENDIAN);
+                bb_for_gwtoken.putInt((int)gateway_token);
+                
+                bb.putShort((short)calculateCRC16(for_crc, 0, for_crc.length));
+            }
+            return frame_bytes;
+        } else if (clazz == Down.class) {
+            Down down =  Down.class.cast(frame);
+            byte[] frame_bytes = new byte[7 + (int)down.getDatalen()];
+            ByteBuffer bb =ByteBuffer.wrap(frame_bytes);
+            bb.order(ByteOrder.BIG_ENDIAN);
+            
+            bb.put((byte)(down.getCmd() & 0xFF));
+            bb.putShort((short) down.getShortaddr());
+            bb.put((byte)(down.getFrameseq() & 0xFF));
+
+            byte start = (byte) (down.getStart() != 0 ? 1 : 0);
+            byte stop = (byte) (down.getStop() != 0 ? 1 : 0);
+            byte tmp = (byte) ((start << 7) + (stop << 6) + ((int)down.getDatalen() & 0x3F));
+            bb.put(tmp);
+
+            bb.put(down.getData());
+
+            if(has_crc) {
+                bb.putShort((short)down.getCrc());
+            } else {
+                byte[] for_crc = Arrays.copyOf(frame_bytes, frame_bytes.length + 2);
+                ByteBuffer bb_for_gwtoken= ByteBuffer.wrap(for_crc, frame_bytes.length - 2 , 4);
+                bb_for_gwtoken.order(ByteOrder.BIG_ENDIAN);
+                bb_for_gwtoken.putInt((int)gateway_token);
+                
+                bb.putShort((short)calculateCRC16(for_crc, 0, for_crc.length));
+            }
+
+            return frame_bytes;
         }
         return null;
     }
@@ -189,13 +265,13 @@ public class MyApp {
         Class<?> clazz = tpl_copy.getClass();
 
         if(!has_gwtoken) {
-            if(clazz == Query.class) {
+            if(clazz == Query.class || clazz == Requirereg.class) {
                 setFieldValue(tpl_copy, "gwtoken", gateway_token);
             }
         }
 
         if(!has_nonce) {
-            if(clazz == Query.class) {
+            if(clazz == Query.class || clazz == Requirereg.class) {
                 setFieldValue(tpl_copy, "nonce", nonce);
             }
         }
@@ -205,11 +281,6 @@ public class MyApp {
             setFieldValue(tpl_copy, "datalen", obj.getData().length);
         }
   
-        // if(clazz == Query.class) {
-        //     Query obj =  Query.class.cast(tpl_copy);
-        //     System.out.printf("copy tpl_query.devid = %d\n", obj.getDevid());
-        // }
-
         return Triple.of(true, has_crc, tpl_copy);
     }
 

@@ -1,24 +1,18 @@
 package top.cypherx.tpl;
 
-public class Query {
+public class Regaccept {
     private long cmd;
     private long devid;
     private long frameseq;
-    private long nonce;
-    private long gwtoken;
-    private long key;
-    private long q;
+    private long shortaddr;
     private long crc;
 
-    public Query copy() {
-        Query cloned = new Query();
+    public Regaccept copy() {
+        Regaccept cloned = new Regaccept();
         cloned.cmd = cmd;
         cloned.devid = devid;
         cloned.frameseq = frameseq;
-        cloned.nonce = nonce;
-        cloned.gwtoken = gwtoken;
-        cloned.key = key;
-        cloned.q = q;
+        cloned.shortaddr = shortaddr;
         cloned.crc = crc;
         return cloned;
     }
@@ -44,32 +38,11 @@ public class Query {
         this.frameseq = frameseq;
     }
 
-    public long getNonce() {
-        return nonce;
+    public long getShortaddr() {
+        return shortaddr;
     }
-    public void setNonce(long nonce) {
-        this.nonce = nonce;
-    }
-
-    public long getGwtoken() {
-        return gwtoken;
-    }
-    public void setGwtoken(long gwtoken) {
-        this.gwtoken = gwtoken;
-    }
-    
-    public long getKey() {
-        return key;
-    }
-    public void setKey(long key) {
-        this.key = key;
-    }
-
-    public long getQ() {
-        return q;
-    }
-    public void setQ(long q) {
-        this.q = q;
+    public void setShortaddr(long shortaddr) {
+        this.shortaddr = shortaddr;
     }
 
     public long getCrc() {
@@ -79,4 +52,3 @@ public class Query {
         this.crc = crc;
     }
 }
-

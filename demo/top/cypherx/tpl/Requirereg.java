@@ -1,8 +1,8 @@
 package top.cypherx.tpl;
 
-public class Query {
+public class Requirereg {
     private long cmd;
-    private long devid;
+    private long shortaddr;
     private long frameseq;
     private long nonce;
     private long gwtoken;
@@ -10,10 +10,10 @@ public class Query {
     private long q;
     private long crc;
 
-    public Query copy() {
-        Query cloned = new Query();
+    public Requirereg copy() {
+        Requirereg cloned = new Requirereg();
         cloned.cmd = cmd;
-        cloned.devid = devid;
+        cloned.shortaddr = shortaddr;
         cloned.frameseq = frameseq;
         cloned.nonce = nonce;
         cloned.gwtoken = gwtoken;
@@ -30,11 +30,11 @@ public class Query {
         this.cmd = cmd;
     }
 
-    public long getDevid() {
-        return devid;
+    public long getShortaddr() {
+        return shortaddr;
     }
-    public void setDevid(long devid) {
-        this.devid = devid;
+    public void setShortaddr(long shortaddr) {
+        this.shortaddr = shortaddr;
     }
 
     public long getFrameseq() {
@@ -79,4 +79,3 @@ public class Query {
         this.crc = crc;
     }
 }
-
