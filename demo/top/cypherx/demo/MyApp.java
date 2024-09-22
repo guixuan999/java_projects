@@ -22,6 +22,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 
+import java.util.Scanner;
+
 public class MyApp {
     private static Map<String, Object> templates;
     private static short seq = 0;
@@ -78,14 +80,12 @@ public class MyApp {
          
         templates = generateTemplates(new String[] {"down", "query", "regaccept", "requirereg"});
         
-        Console console = System.console();
-        if(console == null) {
-            System.out.println("Unable to open console!");
-            System.exit(-1);
-        }
+        Scanner scanner = new Scanner(System.in);
+
 
         while(true) {
-            String cmd = console.readLine("> ");
+            System.out.print("> ");
+            String cmd = scanner.nextLine();
             var result = parseCommand(cmd);
             if(!result.getLeft()) {
                 System.out.println("bad command");
