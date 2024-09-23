@@ -220,31 +220,31 @@ public class MyApp {
         for(int i = 2; i < tokens.length; i++) {
             String key_val = tokens[i];
             try {
-                String[] turple = key_val.split("=");
-                if(!hasField(tpl_copy, turple[0])) {
+                String[] tuple = key_val.split("=");
+                if(!hasField(tpl_copy, tuple[0])) {
                     return Triple.of(false, false, null);
                 }
 
-                if(turple[0].equals("frameseq")) {
+                if(tuple[0].equals("frameseq")) {
                     has_seq = true;
                 }
 
-                if(turple[0].equals("crc")) {
+                if(tuple[0].equals("crc")) {
                     has_crc = true;
                 }
 
-                if(turple[0].equals("gwtoken")) {
+                if(tuple[0].equals("gwtoken")) {
                     has_gwtoken = true;
                 }
 
-                if(turple[0].equals("nonce")) {
+                if(tuple[0].equals("nonce")) {
                     has_nonce = true;
                 }
 
-                if(!turple[0].equals("data")) {
-                    setFieldValue(tpl_copy, turple[0], Long.parseLong(turple[1]));
+                if(!tuple[0].equals("data")) {
+                    setFieldValue(tpl_copy, tuple[0], Long.parseLong(tuple[1]));
                 } else {
-                    setFieldValue(tpl_copy, turple[0], Hex.decodeHex(turple[1].toCharArray()).clone());
+                    setFieldValue(tpl_copy, tuple[0], Hex.decodeHex(tuple[1].toCharArray()).clone());
                 }
             } catch (Exception e) {
                 return Triple.of(false, false, null);
