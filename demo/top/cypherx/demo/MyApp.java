@@ -220,31 +220,31 @@ public class MyApp {
         for(int i = 2; i < tokens.length; i++) {
             String key_val = tokens[i];
             try {
-                String[] tuple = key_val.split("=");
-                if(!hasField(tpl_copy, tuple[0])) {
+                String[] pair = key_val.split("=");
+                if(!hasField(tpl_copy, pair[0])) {
                     return Triple.of(false, false, null);
                 }
 
-                if(tuple[0].equals("frameseq")) {
+                if(pair[0].equals("frameseq")) {
                     has_seq = true;
                 }
 
-                if(tuple[0].equals("crc")) {
+                if(pair[0].equals("crc")) {
                     has_crc = true;
                 }
 
-                if(tuple[0].equals("gwtoken")) {
+                if(pair[0].equals("gwtoken")) {
                     has_gwtoken = true;
                 }
 
-                if(tuple[0].equals("nonce")) {
+                if(pair[0].equals("nonce")) {
                     has_nonce = true;
                 }
 
-                if(!tuple[0].equals("data")) {
-                    setFieldValue(tpl_copy, tuple[0], Long.parseLong(tuple[1]));
+                if(!pair[0].equals("data")) {
+                    setFieldValue(tpl_copy, pair[0], Long.parseLong(pair[1]));
                 } else {
-                    setFieldValue(tpl_copy, tuple[0], Hex.decodeHex(tuple[1].toCharArray()).clone());
+                    setFieldValue(tpl_copy, pair[0], Hex.decodeHex(pair[1].toCharArray()).clone());
                 }
             } catch (Exception e) {
                 return Triple.of(false, false, null);
