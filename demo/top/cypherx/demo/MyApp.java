@@ -58,11 +58,6 @@ public class MyApp {
         if(readerwriter.openPort()) {
             System.out.printf("read timeout: %dms\n", readerwriter.getReadTimeout());
             System.out.printf("write timeout: %dms\n", readerwriter.getWriteTimeout());
-            // try {
-            //     readerwriter.write("Hello Serial!".getBytes("utf-8"));
-            // } catch(Exception e) {
-
-            // }   
         } else {
             System.exit(-1);
         }
@@ -81,7 +76,6 @@ public class MyApp {
         templates = generateTemplates(new String[] {"down", "query", "regaccept", "requirereg"});
         
         Scanner scanner = new Scanner(System.in);
-
 
         while(true) {
             System.out.print("> ");
@@ -122,7 +116,6 @@ public class MyApp {
             if(has_crc) {
                 bb.putShort((short)query.getCrc());
             } else {
-                // calculate CRC16
                 bb.putShort((short)calculateCRC16(frame_bytes, 0, frame_bytes.length - 2));
             }
             
@@ -342,18 +335,15 @@ public class MyApp {
 
     public static String capitalizeFirstLetter(String str) {
         if (str == null || str.isEmpty()) {
-            return str; // 返回空字符串或 null
+            return str;
         }
         return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 
     public static Object invoke_with_no_params(Object obj, String method_name) {
         try {
-            // 获取对象的类
             Class<?> clazz = obj.getClass();
-            // 获取 sayHello 方法
             java.lang.reflect.Method method = clazz.getMethod(method_name);
-            // 调用方法
             return method.invoke(obj);
         } catch (NoSuchMethodException e) {
             System.out.println("Method not found: " + e.getMessage());

@@ -40,7 +40,7 @@ public class SerialReaderWriter {
     }
 
     public int write(byte[] buffer) {  
-        return serialPort.writeBytes(buffer, buffer.length, 0);
+        return serialPort.writeBytes(buffer, buffer.length);
     }
 
     public int getReadTimeout() {
