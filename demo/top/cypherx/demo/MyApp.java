@@ -199,7 +199,7 @@ public class MyApp {
         return null;
     }
 
-    public static Triple<Boolean, Boolean, Object> parseCommand(String cmd) {
+    private static Triple<Boolean, Boolean, Object> parseCommand(String cmd) {
         cmd = cmd.trim();
         String[] tokens = cmd.split("\\s+");
         if(tokens.length < 2) {
@@ -277,7 +277,7 @@ public class MyApp {
         return Triple.of(true, has_crc, tpl_copy);
     }
 
-    public static Map<String, Object> generateTemplates(String[] names) {
+    private static Map<String, Object> generateTemplates(String[] names) {
         Map<String, Object> map = new HashMap<>();
         var objectMapper = new ObjectMapper();
         for(var name: names) {
@@ -292,7 +292,7 @@ public class MyApp {
         return map;
     }
 
-    public static String bytesToHex(byte[] bytes, int n) {
+    private static String bytesToHex(byte[] bytes, int n) {
         Formatter formatter = new Formatter();
         int index = 0;
         formatter.format("%s", "[ ");
@@ -312,7 +312,7 @@ public class MyApp {
         return hexString;
     }
 
-    public static boolean hasField(Object obj, String fieldName) {
+    private static boolean hasField(Object obj, String fieldName) {
         Class<?> clazz = obj.getClass();
         try {
             Field field = clazz.getDeclaredField(fieldName);
@@ -322,25 +322,25 @@ public class MyApp {
         }
     }
 
-    public static void setFieldValue(Object obj, String fieldName, Object newValue) {
+    private static void setFieldValue(Object obj, String fieldName, Object newValue) {
         try {
-        Class<?> clazz = obj.getClass();
-        Field field = clazz.getDeclaredField(fieldName);
-        field.setAccessible(true);
-        field.set(obj, newValue);
+            Class<?> clazz = obj.getClass();
+            Field field = clazz.getDeclaredField(fieldName);
+            field.setAccessible(true);
+            field.set(obj, newValue);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static String capitalizeFirstLetter(String str) {
+    private static String capitalizeFirstLetter(String str) {
         if (str == null || str.isEmpty()) {
             return str;
         }
         return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 
-    public static Object invoke_with_no_params(Object obj, String method_name) {
+    private static Object invoke_with_no_params(Object obj, String method_name) {
         try {
             Class<?> clazz = obj.getClass();
             java.lang.reflect.Method method = clazz.getMethod(method_name);
@@ -353,7 +353,7 @@ public class MyApp {
         return null;
     }
 
-    public static int calculateCRC16(byte[] data, int start, int length) {
+    private static int calculateCRC16(byte[] data, int start, int length) {
         final int POLYNOMIAL = 0x18005; // x^16+x^15+x^2+1
         int crc = 0xFFFF; // initial value
         for(int i = start; i < start + length; i++) {
